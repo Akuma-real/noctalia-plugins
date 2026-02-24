@@ -1,0 +1,47 @@
+{
+  "id": "my-lyric",
+  "name": "My Lyric (No Script)",
+  "version": "0.3.2",
+  "minNoctaliaVersion": "4.5.0",
+  "author": "Akuma_a",
+  "license": "MIT",
+  "repository": "https://github.com/Akuma-real/noctalia-plugins",
+  "description": "Fetch synced lyrics via LrcAPI (lrc.cx) by default, with optional LRCLIB fallback. No external script required.",
+  "tags": ["Bar", "Music"],
+  "entryPoints": {
+    "barWidget": "BarWidget.qml",
+    "settings": "Settings.qml"
+  },
+  "metadata": {
+    "defaultSettings": {
+      "provider": {
+        "active": "lrccx"
+      },
+      "providers": {
+        "lrccx": {
+          "baseUrl": "https://api.lrc.cx/lyrics",
+          "timeoutMs": 3500
+        },
+        "lrclib": {
+          "baseUrl": "https://lrclib.net/api/get",
+          "timeoutMs": 3500
+        }
+      },
+      "polling": {
+        "updateMs": 200
+      },
+      "display": {
+        "width": 360,
+        "minWidth": 180,
+        "trackAdaptive": true,
+        "showWhenEmpty": false,
+        "emptyText": ""
+      },
+      "cache": {
+        "enabled": true,
+        "ttlSec": 21600,
+        "maxEntries": 200
+      }
+    }
+  }
+}
