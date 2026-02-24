@@ -1,0 +1,20 @@
+{
+  "id": "my-lyric",
+  "name": "Lyrics (SPlayer)",
+  "version": "0.1.0",
+  "author": "akuma",
+  "minNoctaliaVersion": "3.6.0",
+  "license": "MIT",
+  "description": "Show lyrics in the bar by listening to MPRIS and fetching lyrics online.",
+  "tags": ["Bar", "Audio"],
+  "entryPoints": {
+    "barWidget": "BarWidget.qml",
+    "settings": "Settings.qml"
+  },
+  "metadata": {
+    "defaultSettings": {
+      "playerName": "splayer",
+      "refreshMs": 1000
+    }
+  }
+}

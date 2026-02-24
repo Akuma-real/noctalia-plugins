@@ -1,0 +1,14 @@
+{
+  "plugins": [
+    {
+      "id": "my-lyric",
+      "name": "Lyrics (SPlayer)",
+      "description": "Show the current synced lyric line in the Noctalia bar by querying MPRIS via playerctl and fetching lyrics from LRCLIB.",
+      "version": "0.1.0",
+      "author": "akuma",
+      "tags": ["Bar", "Audio"],
+      "url": "https://github.com/Akuma-real/my-lyric",
+      "branch": "main"
+    }
+  ]
+}
