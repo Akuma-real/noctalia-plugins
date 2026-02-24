@@ -4,6 +4,7 @@ import Qt5Compat.GraphicalEffects
 import qs.Commons
 import qs.Services.UI
 import qs.Widgets
+import "." as Local
 import "core/domain/LyricMatcher.js" as LyricMatcher
 
 Item {
@@ -255,18 +256,112 @@ Item {
         radius: 84
         cached: true
         transparentBorder: true
-        visible: root.coverSource.length > 0
+        visible: root.connected && root.coverSource.length > 0
       }
 
       Rectangle {
         anchors.fill: parent
         z: -1
-        color: "#EFEDE5"
-        opacity: root.coverSource.length > 0 ? 0.54 : 0.78
+        color: root.connected ? "#EFEDE5" : Color.mSurfaceVariant
+        opacity: root.connected ? (root.coverSource.length > 0 ? 0.54 : 0.78) : 0.96
+      }
+
+      Flickable {
+        id: settingsFlickable
+        z: 1
+        anchors {
+          fill: parent
+          margins: Style.marginL
+        }
+        clip: true
+        visible: !root.connected
+        interactive: contentHeight > height
+        contentWidth: width
+        contentHeight: settingsContent.implicitHeight
+
+        ColumnLayout {
+          id: settingsContent
+          width: settingsFlickable.width
+          spacing: Style.marginM
+
+          Rectangle {
+            Layout.fillWidth: true
+            Layout.preferredHeight: settingsHint.implicitHeight + Style.marginM * 2
+            radius: Style.radiusL
+            color: Qt.alpha(Color.mSurface, 0.9)
+            border.width: 1
+            border.color: Qt.alpha(Color.mOnSurfaceVariant, 0.14)
+
+            NText {
+              id: settingsHint
+              anchors {
+                fill: parent
+                leftMargin: Style.marginM
+                rightMargin: Style.marginM
+              }
+              text: tr("panel.connection", "连接状态") + ": " + root.connectionStateText
+              pointSize: Style.fontSizeS * Style.uiScaleRatio
+              color: root.hasConnectionIssue ? "#DF5F5F" : "#D8A845"
+              verticalAlignment: Text.AlignVCenter
+              wrapMode: Text.Wrap
+            }
+          }
+
+          Rectangle {
+            Layout.fillWidth: true
+            radius: Style.radiusL
+            color: Qt.alpha(Color.mSurface, 0.9)
+            border.width: 1
+            border.color: Qt.alpha(Color.mOnSurfaceVariant, 0.14)
+            implicitHeight: settingsForm.implicitHeight + Style.marginM * 2
+
+            Local.Settings {
+              id: settingsForm
+              anchors {
+                left: parent.left
+                right: parent.right
+                top: parent.top
+                margins: Style.marginM
+              }
+              pluginApi: root.pluginApi
+            }
+          }
+
+          Rectangle {
+            Layout.fillWidth: true
+            Layout.preferredHeight: 42 * Style.uiScaleRatio
+            radius: Style.radiusL
+            color: saveSettingsMouse.containsMouse ? Qt.alpha(Color.mPrimary, 0.22) : Qt.alpha(Color.mPrimary, 0.16)
+            border.width: 1
+            border.color: Qt.alpha(Color.mPrimary, 0.32)
+
+            Behavior on color {
+              ColorAnimation {
+                duration: 140
+              }
+            }
+
+            NText {
+              anchors.centerIn: parent
+              text: tr("panel.save-and-reconnect", "保存并重连")
+              pointSize: Style.fontSizeS * Style.uiScaleRatio
+              color: Color.mOnSurface
+            }
+
+            MouseArea {
+              id: saveSettingsMouse
+              anchors.fill: parent
+              hoverEnabled: true
+              cursorShape: Qt.PointingHandCursor
+              onClicked: settingsForm.saveSettings()
+            }
+          }
+        }
       }
 
       ColumnLayout {
         z: 1
+        visible: root.connected
         anchors {
           fill: parent
           margins: Style.marginL

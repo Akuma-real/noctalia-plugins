@@ -181,6 +181,7 @@ Item {
     return Math.max(minWidgetWidth, Math.min(fixedWidgetWidth, rawWidth))
   }
   readonly property int resolvedWidgetWidth: {
+    if (!connected) return Math.round(Style.capsuleHeight)
     if (showLyric && connected && widestLyricLineWidth > 0) return lyricDrivenWidgetWidth
     return fixedWidgetWidth
   }
@@ -242,7 +243,7 @@ Item {
     id: capsule
     anchors.fill: parent
     color: Style.capsuleColor
-    radius: Style.radiusL
+    radius: connected ? Style.radiusL : (height / 2)
     border.color: Style.capsuleBorderColor
     border.width: Style.capsuleBorderWidth
     clip: true
@@ -276,6 +277,7 @@ Item {
           pointSize: Style.barFontSize
           elide: Text.ElideRight
           wrapMode: Text.NoWrap
+          visible: connected
         }
       }
     }
@@ -367,6 +369,11 @@ Item {
     onClicked: mouse => {
       if (mouse.button === Qt.RightButton) {
         PanelService.showContextMenu(contextMenu, root, screen)
+        return
+      }
+
+      if (!connected) {
+        if (pluginApi && pluginApi.openPanel) pluginApi.openPanel(root.screen, root)
         return
       }
 
