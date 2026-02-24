@@ -37,7 +37,9 @@
         "emptyText": ""
       },
       "lyric": {
-        "preferYrc": true
+        "preferYrc": true,
+        "typewriterEnabled": true,
+        "typewriterIntervalMs": 45
       },
       "behavior": {
         "openPanelOnClick": true

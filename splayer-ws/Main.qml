@@ -32,16 +32,23 @@ Item {
   property bool _checkingDependency: false
   property bool _restartExpected: false
 
-  readonly property bool autoReconnect: Boolean(settings?.connection?.autoReconnect ?? true)
-  readonly property int reconnectMs: Number(settings?.connection?.reconnectMs ?? 1500)
-  readonly property int heartbeatSec: Number(settings?.connection?.heartbeatSec ?? 20)
-  readonly property string websocatBin: (settings?.connection?.websocatBin ?? "websocat").toString()
-  readonly property bool preferYrc: Boolean(settings?.lyric?.preferYrc ?? true)
+  function _valueOr(value, fallback) {
+    return (value === undefined || value === null) ? fallback : value
+  }
+
+  readonly property var connectionCfg: (settings && settings.connection) ? settings.connection : ({})
+  readonly property var lyricCfg: (settings && settings.lyric) ? settings.lyric : ({})
+
+  readonly property bool autoReconnect: Boolean(_valueOr(connectionCfg.autoReconnect, true))
+  readonly property int reconnectMs: Number(_valueOr(connectionCfg.reconnectMs, 1500))
+  readonly property int heartbeatSec: Number(_valueOr(connectionCfg.heartbeatSec, 20))
+  readonly property string websocatBin: _valueOr(connectionCfg.websocatBin, "websocat").toString()
+  readonly property bool preferYrc: Boolean(_valueOr(lyricCfg.preferYrc, true))
 
   readonly property string wsUrl: "ws://"
-    + (settings?.connection?.host ?? "127.0.0.1")
+    + _valueOr(connectionCfg.host, "127.0.0.1")
     + ":"
-    + Number(settings?.connection?.port ?? 25885)
+    + Number(_valueOr(connectionCfg.port, 25885))
 
   function _safeText(value, fallback) {
     if (value === undefined || value === null) return fallback
@@ -153,7 +160,8 @@ Item {
       wsProc.write(message + "\n")
       return true
     } catch (e) {
-      _setConnectionError(pluginApi?.tr("errors.send-failed") || "发送消息失败", false)
+      var sendFailedText = (pluginApi && pluginApi.tr) ? pluginApi.tr("errors.send-failed") : ""
+      _setConnectionError(sendFailedText || "发送消息失败", false)
       return false
     }
   }
@@ -355,9 +363,10 @@ Item {
         return
       }
 
-      var message = root.pluginApi?.tr("errors.websocat-missing", {
+      var missingText = (root.pluginApi && root.pluginApi.tr) ? root.pluginApi.tr("errors.websocat-missing", {
         "bin": root.websocatBin
-      }) || ("找不到 " + root.websocatBin + "，请先安装 websocat")
+      }) : ""
+      var message = missingText || ("找不到 " + root.websocatBin + "，请先安装 websocat")
       root._setConnectionError(message, true)
     }
   }

@@ -53,7 +53,10 @@
       "show-lyric": "显示歌词"
     },
     "lyric": {
-      "prefer-yrc": "优先逐字歌词(yrc)"
+      "prefer-yrc": "优先逐字歌词(yrc)",
+      "typewriter-enabled": "逐字动画",
+      "typewriter-interval": "逐字间隔(ms)",
+      "typewriter-interval-desc": "每个字符显示间隔，越小越快"
     },
     "behavior": {
       "open-panel": "左键打开面板"

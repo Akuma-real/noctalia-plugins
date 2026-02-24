@@ -91,6 +91,17 @@ function normalize(raw) {
   if (lyric.preferYrc !== undefined) {
     out.lyric.preferYrc = _toBool(lyric.preferYrc, out.lyric.preferYrc)
   }
+  if (lyric.typewriterEnabled !== undefined) {
+    out.lyric.typewriterEnabled = _toBool(lyric.typewriterEnabled, out.lyric.typewriterEnabled)
+  }
+  if (lyric.typewriterIntervalMs !== undefined) {
+    out.lyric.typewriterIntervalMs = _toInt(
+      lyric.typewriterIntervalMs,
+      limits.typewriterIntervalMs.min,
+      limits.typewriterIntervalMs.max,
+      out.lyric.typewriterIntervalMs
+    )
+  }
 
   if (behavior.openPanelOnClick !== undefined) {
     out.behavior.openPanelOnClick = _toBool(behavior.openPanelOnClick, out.behavior.openPanelOnClick)

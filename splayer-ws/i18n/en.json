@@ -53,7 +53,10 @@
       "show-lyric": "Show lyric"
     },
     "lyric": {
-      "prefer-yrc": "Prefer yrc lyrics"
+      "prefer-yrc": "Prefer yrc lyrics",
+      "typewriter-enabled": "Typewriter animation",
+      "typewriter-interval": "Type interval (ms)",
+      "typewriter-interval-desc": "Delay between characters, lower means faster"
     },
     "behavior": {
       "open-panel": "Left click opens panel"

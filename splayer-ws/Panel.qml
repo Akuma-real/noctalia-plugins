@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import Qt5Compat.GraphicalEffects
 import qs.Commons
 import qs.Services.UI
 import qs.Widgets
@@ -9,32 +10,42 @@ Item {
   id: root
 
   property var pluginApi: null
-  readonly property var mainInstance: pluginApi?.mainInstance
-  readonly property string coverSource: (mainInstance?.coverUrl || "").toString().trim()
-  readonly property string trackText: (mainInstance?.trackName || (pluginApi?.tr("panel.empty") || "暂无播放信息")).toString()
+
+  function valueOr(value, fallback) {
+    return (value === undefined || value === null) ? fallback : value
+  }
+
+  function tr(key, fallback) {
+    var mapped = (pluginApi && pluginApi.tr) ? pluginApi.tr(key) : ""
+    return mapped || fallback
+  }
+
+  readonly property var mainInstance: (pluginApi && pluginApi.mainInstance) ? pluginApi.mainInstance : null
+  readonly property string coverSource: ((mainInstance && mainInstance.coverUrl) ? mainInstance.coverUrl : "").toString().trim()
+  readonly property string trackText: (((mainInstance && mainInstance.trackName) || tr("panel.empty", "暂无播放信息"))).toString()
   readonly property string artistAlbumText: {
-    var artist = (mainInstance?.artistName || "").toString().trim()
-    var album = (mainInstance?.albumName || "").toString().trim()
+    var artist = ((mainInstance && mainInstance.artistName) ? mainInstance.artistName : "").toString().trim()
+    var album = ((mainInstance && mainInstance.albumName) ? mainInstance.albumName : "").toString().trim()
     if (artist && album) return artist + " · " + album
     return artist || album || ""
   }
-  readonly property string currentLyricText: (mainInstance?.currentLyric || "").toString()
-  readonly property string nextLyricText: (mainInstance?.nextLyric || "").toString()
-  readonly property real progressValue: Math.max(0, Math.min(1, Number(mainInstance?.progressRatio || 0)))
-  readonly property string connectionState: (mainInstance?.connectionState || "disconnected").toString()
+  readonly property string currentLyricText: ((mainInstance && mainInstance.currentLyric) ? mainInstance.currentLyric : "").toString()
+  readonly property string nextLyricText: ((mainInstance && mainInstance.nextLyric) ? mainInstance.nextLyric : "").toString()
+  readonly property real progressValue: Math.max(0, Math.min(1, Number((mainInstance && mainInstance.progressRatio) || 0)))
+  readonly property string connectionState: ((mainInstance && mainInstance.connectionState) ? mainInstance.connectionState : "disconnected").toString()
   readonly property bool connected: connectionState === "connected"
-  readonly property string connectionStateText: (pluginApi?.tr("panel.state." + connectionState) || connectionState)
+  readonly property string connectionStateText: tr("panel.state." + connectionState, connectionState)
   readonly property bool hasConnectionIssue: connectionState === "disconnected" || connectionState === "error"
   readonly property var lyricSourceLines: {
-    var preferYrc = Boolean(mainInstance?.preferYrc ?? true)
-    var yrcData = mainInstance?.yrcData
-    var lrcData = mainInstance?.lrcData
+    var preferYrc = Boolean(valueOr(mainInstance ? mainInstance.preferYrc : undefined, true))
+    var yrcData = mainInstance ? mainInstance.yrcData : undefined
+    var lrcData = mainInstance ? mainInstance.lrcData : undefined
     if (preferYrc && Array.isArray(yrcData) && yrcData.length > 0) return yrcData
     if (Array.isArray(lrcData) && lrcData.length > 0) return lrcData
     return []
   }
-  readonly property var lyricPickResult: LyricMatcher.pickLines(lyricSourceLines, Number(mainInstance?.currentTimeMs || 0))
-  readonly property int lyricCurrentIndex: Number(lyricPickResult?.index ?? -1)
+  readonly property var lyricPickResult: LyricMatcher.pickLines(lyricSourceLines, Number((mainInstance && mainInstance.currentTimeMs) || 0))
+  readonly property int lyricCurrentIndex: Number(valueOr(lyricPickResult ? lyricPickResult.index : undefined, -1))
   readonly property var lyricDisplayModel: {
     var source = Array.isArray(lyricSourceLines) ? lyricSourceLines : []
     var mapped = []
@@ -69,13 +80,15 @@ Item {
     if (!hasLyricLines) return -1
 
     for (var i = 0; i < lyricDisplayModel.length; i++) {
-      if (Number(lyricDisplayModel[i]?.sourceIndex ?? -1) === lyricCurrentIndex) return i
+      var sourceIndex = valueOr(lyricDisplayModel[i] ? lyricDisplayModel[i].sourceIndex : undefined, -1)
+      if (Number(sourceIndex) === lyricCurrentIndex) return i
     }
 
     var current = root.currentLyricText.toString().trim()
     if (current) {
       for (var j = 0; j < lyricDisplayModel.length; j++) {
-        if ((lyricDisplayModel[j]?.text || "").toString().trim() === current) return j
+        var displayText = (lyricDisplayModel[j] && lyricDisplayModel[j].text) ? lyricDisplayModel[j].text : ""
+        if (displayText.toString().trim() === current) return j
       }
     }
     return 0
@@ -85,7 +98,7 @@ Item {
   readonly property real controlButtonSize: 46 * Style.uiScaleRatio
   readonly property real controlMainButtonSize: 56 * Style.uiScaleRatio
 
-  readonly property var geometryPlaceholder: panelContainer
+  readonly property var geometryPlaceholder: panelSurface
   property real contentPreferredWidth: 520 * Style.uiScaleRatio
   property real contentPreferredHeight: 620 * Style.uiScaleRatio
   readonly property bool allowAttach: true
@@ -104,8 +117,8 @@ Item {
   }
 
   function openSettings() {
-    var screen = pluginApi?.panelOpenScreen
-    if (screen && pluginApi?.manifest) {
+    var screen = (pluginApi && pluginApi.panelOpenScreen) ? pluginApi.panelOpenScreen : null
+    if (screen && pluginApi && pluginApi.manifest) {
       BarService.openPluginSettings(screen, pluginApi.manifest)
     }
   }
@@ -176,18 +189,95 @@ Item {
     anchors.fill: parent
     color: "transparent"
 
-    ColumnLayout {
-      anchors {
-        fill: parent
-        margins: Style.marginL
+    readonly property real cornerRadius: Style.radiusL
+    readonly property real connectorWidth: Math.max(
+      96 * Style.uiScaleRatio,
+      Math.min(width * 0.42, 168 * Style.uiScaleRatio)
+    )
+    readonly property real connectorHeight: Math.max(12 * Style.uiScaleRatio, 14 * Style.uiScaleRatio)
+
+    Rectangle {
+      id: panelConnector
+      width: panelContainer.connectorWidth
+      height: panelContainer.connectorHeight
+      anchors.horizontalCenter: panelContainer.horizontalCenter
+      y: -Math.round(height * 0.46)
+      radius: height / 2
+      color: "#EFEDE5"
+      border.width: 0
+      opacity: 0.94
+      z: -1
+    }
+
+    Rectangle {
+      id: panelSurface
+      anchors.fill: parent
+      radius: panelContainer.cornerRadius
+      antialiasing: true
+      color: Color.mSurfaceVariant
+      border.width: 0
+      layer.enabled: true
+      layer.effect: OpacityMask {
+        maskSource: Rectangle {
+          width: panelSurface.width
+          height: panelSurface.height
+          radius: panelSurface.radius
+          color: "#FFFFFFFF"
+          antialiasing: true
+        }
       }
-      spacing: Style.marginM
+
+      Rectangle {
+        anchors.fill: parent
+        z: -3
+        color: Color.mSurfaceVariant
+      }
+
+      Image {
+        id: atmosphericCoverImage
+        anchors.fill: parent
+        z: -2
+        source: root.coverSource
+        fillMode: Image.PreserveAspectCrop
+        asynchronous: true
+        cache: true
+        smooth: true
+        mipmap: true
+        sourceSize.width: Math.max(96, Math.round(width / 5))
+        sourceSize.height: Math.max(96, Math.round(height / 5))
+        visible: false
+      }
+
+      FastBlur {
+        anchors.fill: parent
+        z: -2
+        source: atmosphericCoverImage
+        radius: 84
+        cached: true
+        transparentBorder: true
+        visible: root.coverSource.length > 0
+      }
+
+      Rectangle {
+        anchors.fill: parent
+        z: -1
+        color: "#EFEDE5"
+        opacity: root.coverSource.length > 0 ? 0.54 : 0.78
+      }
+
+      ColumnLayout {
+        z: 1
+        anchors {
+          fill: parent
+          margins: Style.marginL
+        }
+        spacing: Style.marginM
 
       Rectangle {
         Layout.fillWidth: true
         Layout.preferredHeight: 132 * Style.uiScaleRatio
         radius: Style.radiusL
-        color: Color.mSurfaceVariant
+        color: "transparent"
 
         RowLayout {
           anchors {
@@ -206,7 +296,7 @@ Item {
               anchors.fill: parent
               radius: Style.radiusM
               imagePath: root.coverSource
-              fallbackIcon: mainInstance?.isPlaying ? "music" : "music-off"
+              fallbackIcon: (mainInstance && mainInstance.isPlaying) ? "music" : "music-off"
               fallbackIconSize: Style.fontSizeXL * 1.4
               imageFillMode: Image.PreserveAspectCrop
               borderWidth: 0
@@ -223,7 +313,7 @@ Item {
               spacing: Style.marginS
 
               NText {
-                text: pluginApi?.tr("panel.title") || "SPlayer WS Adapter"
+                text: tr("panel.title", "SPlayer WS Adapter")
                 pointSize: Style.fontSizeXS * Style.uiScaleRatio
                 color: Qt.alpha(Color.mOnSurfaceVariant, 0.84)
                 elide: Text.ElideRight
@@ -271,7 +361,9 @@ Item {
                     anchors.fill: parent
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
-                    onClicked: mainInstance?.reconnect()
+                    onClicked: {
+                      if (mainInstance && mainInstance.reconnect) mainInstance.reconnect()
+                    }
                   }
                 }
 
@@ -333,7 +425,7 @@ Item {
         Layout.topMargin: Style.marginXS
         Layout.preferredHeight: progressColumn.implicitHeight + Style.marginM * 2
         radius: Style.radiusL
-        color: Color.mSurfaceVariant
+        color: "transparent"
 
         ColumnLayout {
           id: progressColumn
@@ -344,7 +436,7 @@ Item {
           spacing: Style.marginS
 
           NText {
-            text: (pluginApi?.tr("panel.connection") || "连接状态") + ": " + root.connectionStateText
+            text: tr("panel.connection", "连接状态") + ": " + root.connectionStateText
             pointSize: Style.fontSizeS * Style.uiScaleRatio
             color: root.hasConnectionIssue ? "#DF5F5F" : "#D8A845"
             visible: !root.connected
@@ -355,7 +447,7 @@ Item {
             spacing: Style.marginS
 
             NText {
-              text: formatMs(mainInstance?.currentTimeMs || 0)
+              text: formatMs((mainInstance && mainInstance.currentTimeMs) || 0)
               pointSize: Style.fontSizeXS * Style.uiScaleRatio
               color: Color.mOnSurfaceVariant
             }
@@ -395,12 +487,12 @@ Item {
                 color: Color.mPrimary
                 anchors.verticalCenter: progressTrack.verticalCenter
                 x: Math.max(0, Math.min(progressTrack.width - width, progressFill.width - width / 2))
-                visible: Number(mainInstance?.durationMs || 0) > 0
+                visible: Number((mainInstance && mainInstance.durationMs) || 0) > 0
               }
             }
 
             NText {
-              text: formatMs(mainInstance?.durationMs || 0)
+              text: formatMs((mainInstance && mainInstance.durationMs) || 0)
               pointSize: Style.fontSizeXS * Style.uiScaleRatio
               color: Color.mOnSurfaceVariant
             }
@@ -412,7 +504,7 @@ Item {
         Layout.fillWidth: true
         Layout.preferredHeight: controlsRow.implicitHeight + Style.marginM * 2
         radius: Style.radiusL
-        color: Color.mSurfaceVariant
+        color: "transparent"
 
         RowLayout {
           id: controlsRow
@@ -448,7 +540,9 @@ Item {
               anchors.fill: parent
               hoverEnabled: true
               cursorShape: Qt.PointingHandCursor
-              onClicked: mainInstance?.sendControl("prev")
+              onClicked: {
+                if (mainInstance && mainInstance.sendControl) mainInstance.sendControl("prev")
+              }
             }
           }
 
@@ -466,7 +560,7 @@ Item {
 
             NIcon {
               anchors.centerIn: parent
-              icon: mainInstance?.isPlaying ? "media-pause" : "media-play"
+              icon: (mainInstance && mainInstance.isPlaying) ? "media-pause" : "media-play"
               applyUiScale: false
               color: Color.mOnSurface
             }
@@ -476,7 +570,9 @@ Item {
               anchors.fill: parent
               hoverEnabled: true
               cursorShape: Qt.PointingHandCursor
-              onClicked: mainInstance?.sendControl("toggle")
+              onClicked: {
+                if (mainInstance && mainInstance.sendControl) mainInstance.sendControl("toggle")
+              }
             }
           }
 
@@ -504,7 +600,9 @@ Item {
               anchors.fill: parent
               hoverEnabled: true
               cursorShape: Qt.PointingHandCursor
-              onClicked: mainInstance?.sendControl("next")
+              onClicked: {
+                if (mainInstance && mainInstance.sendControl) mainInstance.sendControl("next")
+              }
             }
           }
 
@@ -518,7 +616,7 @@ Item {
         Layout.preferredHeight: 232 * Style.uiScaleRatio
         Layout.maximumHeight: 320 * Style.uiScaleRatio
         radius: Style.radiusL
-        color: Color.mSurfaceVariant
+        color: "transparent"
 
         Item {
           id: lyricViewport
@@ -556,7 +654,9 @@ Item {
               id: lyricDelegate
               width: lyricListView.width
               readonly property bool active: index === root.lyricDisplayActiveIndex
-              readonly property real lineHeight: (lyricDelegate.active ? Style.fontSizeXL * 2.05 : Style.fontSizeM * 1.9) * Style.uiScaleRatio
+              readonly property real inactivePointSize: Style.fontSizeM * Style.uiScaleRatio
+              readonly property real activePointSize: inactivePointSize + 6 * Style.uiScaleRatio
+              readonly property real lineHeight: lyricDelegate.active ? activePointSize * 2.1 : inactivePointSize * 1.9
               height: lineHeight
 
               NText {
@@ -567,10 +667,10 @@ Item {
                   top: parent.top
                   bottom: parent.bottom
                 }
-                text: (modelData?.text || "").toString()
-                pointSize: (lyricDelegate.active ? Style.fontSizeXL : Style.fontSizeM) * Style.uiScaleRatio
-                font.weight: lyricDelegate.active ? Font.DemiBold : Font.Normal
-                color: lyricDelegate.active ? Color.mOnSurface : Qt.alpha(Color.mOnSurfaceVariant, 0.52)
+                text: ((modelData && modelData.text) ? modelData.text : "").toString()
+                pointSize: lyricDelegate.active ? lyricDelegate.activePointSize : lyricDelegate.inactivePointSize
+                font.weight: lyricDelegate.active ? Font.Black : Font.Light
+                color: lyricDelegate.active ? Qt.alpha(Color.mOnSurface, 0.96) : Qt.alpha(Color.mOnSurfaceVariant, 0.5)
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
                 wrapMode: Text.Wrap
@@ -631,4 +731,5 @@ Item {
       }
     }
   }
+}
 }

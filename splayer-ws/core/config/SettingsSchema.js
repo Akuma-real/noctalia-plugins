@@ -19,7 +19,9 @@ var DEFAULTS = {
     emptyText: ""
   },
   lyric: {
-    preferYrc: true
+    preferYrc: true,
+    typewriterEnabled: true,
+    typewriterIntervalMs: 45
   },
   behavior: {
     openPanelOnClick: true
@@ -31,7 +33,8 @@ var LIMITS = {
   reconnectMs: { min: 200, max: 60000 },
   heartbeatSec: { min: 5, max: 120 },
   width: { min: 120, max: 1000 },
-  minWidth: { min: 80, max: 1000 }
+  minWidth: { min: 80, max: 1000 },
+  typewriterIntervalMs: { min: 10, max: 300 }
 }
 
 function cloneDefaults() {
