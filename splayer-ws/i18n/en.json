@@ -1,0 +1,66 @@
+{
+  "widget": {
+    "disconnected": "SPlayer disconnected",
+    "empty": "No playback info"
+  },
+  "menu": {
+    "play": "Play",
+    "pause": "Pause",
+    "next": "Next",
+    "prev": "Previous",
+    "reconnect": "Reconnect",
+    "settings": "Settings"
+  },
+  "panel": {
+    "title": "SPlayer WS Adapter",
+    "connection": "Connection",
+    "empty": "No playback info",
+    "lyrics": {
+      "current": "Current lyric",
+      "next": "Next line"
+    },
+    "state": {
+      "connected": "Connected",
+      "connecting": "Connecting",
+      "disconnected": "Disconnected",
+      "error": "Error"
+    }
+  },
+  "settings": {
+    "connection": {
+      "host": "WS Host",
+      "host-desc": "SPlayer WebSocket host",
+      "port": "WS Port",
+      "port-desc": "SPlayer WebSocket port",
+      "websocat": "Websocat binary",
+      "websocat-desc": "Default is websocat, can be absolute path",
+      "reconnect-ms": "Reconnect Interval (ms)",
+      "reconnect-ms-desc": "Interval for automatic reconnect",
+      "heartbeat-sec": "Heartbeat (sec)",
+      "heartbeat-sec-desc": "PING interval",
+      "auto-reconnect": "Auto reconnect"
+    },
+    "display": {
+      "width": "Widget width",
+      "width-desc": "Default bar widget width",
+      "min-width": "Minimum width",
+      "min-width-desc": "Minimum width when content is short",
+      "empty-text": "Empty state text",
+      "empty-text-desc": "Shown when disconnected or idle",
+      "show-artist": "Show artist",
+      "show-album": "Show album",
+      "show-progress": "Show progress line",
+      "show-lyric": "Show lyric"
+    },
+    "lyric": {
+      "prefer-yrc": "Prefer yrc lyrics"
+    },
+    "behavior": {
+      "open-panel": "Left click opens panel"
+    }
+  },
+  "errors": {
+    "websocat-missing": "Cannot find {bin}, please install websocat first",
+    "send-failed": "Failed to send websocket message"
+  }
+}

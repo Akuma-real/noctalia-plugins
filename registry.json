@@ -1,0 +1,48 @@
+{
+  "plugins": [
+    {
+      "id": "splayer-ws",
+      "name": "SPlayer WS Adapter",
+      "version": "0.1.0",
+      "minNoctaliaVersion": "4.5.0",
+      "author": "Akuma_a",
+      "license": "MIT",
+      "repository": "https://github.com/Akuma-real/noctalia-plugins",
+      "description": "Connect to SPlayer WebSocket service and show real-time song state, controls, and lyrics.",
+      "tags": ["Bar", "Panel", "Music"],
+      "entryPoints": {
+        "main": "Main.qml",
+        "barWidget": "BarWidget.qml",
+        "panel": "Panel.qml",
+        "settings": "Settings.qml"
+      },
+      "metadata": {
+        "defaultSettings": {
+          "connection": {
+            "host": "127.0.0.1",
+            "port": 25885,
+            "autoReconnect": true,
+            "reconnectMs": 1500,
+            "heartbeatSec": 20,
+            "websocatBin": "websocat"
+          },
+          "display": {
+            "width": 360,
+            "minWidth": 180,
+            "showArtist": true,
+            "showAlbum": false,
+            "showProgress": true,
+            "showLyric": true,
+            "emptyText": ""
+          },
+          "lyric": {
+            "preferYrc": true
+          },
+          "behavior": {
+            "openPanelOnClick": true
+          }
+        }
+      }
+    }
+  ]
+}

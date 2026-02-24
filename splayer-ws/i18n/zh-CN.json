@@ -1,0 +1,66 @@
+{
+  "widget": {
+    "disconnected": "SPlayer 未连接",
+    "empty": "暂无播放信息"
+  },
+  "menu": {
+    "play": "播放",
+    "pause": "暂停",
+    "next": "下一首",
+    "prev": "上一首",
+    "reconnect": "重连",
+    "settings": "设置"
+  },
+  "panel": {
+    "title": "SPlayer WS 适配器",
+    "connection": "连接状态",
+    "empty": "暂无播放信息",
+    "lyrics": {
+      "current": "当前歌词",
+      "next": "下一句"
+    },
+    "state": {
+      "connected": "已连接",
+      "connecting": "连接中",
+      "disconnected": "未连接",
+      "error": "连接异常"
+    }
+  },
+  "settings": {
+    "connection": {
+      "host": "WS 地址",
+      "host-desc": "SPlayer WebSocket 服务地址",
+      "port": "WS 端口",
+      "port-desc": "SPlayer WebSocket 服务端口",
+      "websocat": "Websocat 可执行文件",
+      "websocat-desc": "默认是 websocat，也可填写绝对路径",
+      "reconnect-ms": "重连间隔(ms)",
+      "reconnect-ms-desc": "连接断开后的自动重连间隔",
+      "heartbeat-sec": "心跳间隔(秒)",
+      "heartbeat-sec-desc": "发送 PING 的周期",
+      "auto-reconnect": "自动重连"
+    },
+    "display": {
+      "width": "组件宽度",
+      "width-desc": "Bar 组件默认宽度",
+      "min-width": "最小宽度",
+      "min-width-desc": "内容较少时保留的最小宽度",
+      "empty-text": "空状态文本",
+      "empty-text-desc": "未连接或无播放信息时显示文本",
+      "show-artist": "显示歌手",
+      "show-album": "显示专辑",
+      "show-progress": "显示进度条",
+      "show-lyric": "显示歌词"
+    },
+    "lyric": {
+      "prefer-yrc": "优先逐字歌词(yrc)"
+    },
+    "behavior": {
+      "open-panel": "左键打开面板"
+    }
+  },
+  "errors": {
+    "websocat-missing": "找不到 {bin}，请先安装 websocat",
+    "send-failed": "发送 WebSocket 消息失败"
+  }
+}

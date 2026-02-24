@@ -1,0 +1,18 @@
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Temporary/editor swap files
+*.swp
+*.swo
+*~
+
+# IDE/editor settings
+.idea/
+.vscode/
+
+# Local debug settings
+splayer-ws/settings.json
